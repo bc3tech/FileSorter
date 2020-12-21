@@ -34,6 +34,9 @@ namespace FileSorter
 
             [ArgShortcut("n"), ArgDescription(@"Don't move any files (useful with -u to update times only)"), ArgDefaultValue(false)]
             public bool NoMove { get; set; }
+
+            [ArgShortcut("r"), ArgDescription(@"True to process all files in all subdirectories of Input Directory. Compatible only with -NoMove (and -u)"), ArgDefaultValue(false)]
+            public bool Recurse { get; set; }
         }
 
         static void Main(string[] args)
@@ -55,7 +58,7 @@ namespace FileSorter
 
             foreach (var fi in di.EnumerateFiles(@"*", new System.IO.EnumerationOptions
             {
-                RecurseSubdirectories = false,
+                RecurseSubdirectories = input.Recurse,
                 MatchCasing = MatchCasing.CaseInsensitive,
                 MatchType = MatchType.Simple,
                 ReturnSpecialDirectories = false
@@ -87,7 +90,7 @@ namespace FileSorter
                     catch { }
                 }
 
-                if (!input.NoMove)
+                if (!input.NoMove && !input.Recurse)
                 {
                     var dirName = Path.Combine(timeToUse.ToString(@"yyyy"), timeToUse.ToString(@"MM MMMM"));
                     var targetFolder = Path.Combine(outputDirectory, dirName);
