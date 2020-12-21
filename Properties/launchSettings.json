@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "FileSorter": {
+      "commandName": "Project",
+      "commandLineArgs": "-h"
+    }
+  }
+}
