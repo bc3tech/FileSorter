@@ -8,15 +8,16 @@ namespace FileSorter
 {
     class Program
     {
+        [TabCompletion]
         class ProgramArgs
         {
             [HelpHook, ArgShortcut("?"), ArgShortcut("h"), ArgDescription("Shows help")]
             public bool Help { get; set; }
 
-            [ArgPosition(0), ArgShortcut("in"), ArgDescription(@"The directory containing the files to process"), ArgDefaultValue(null)]
+            [ArgShortcut("in"), ArgDescription(@"The directory containing the files to process"), ArgDefaultValue(@"")]
             public string InputDirectory { get; set; }
 
-            [ArgPosition(1), ArgShortcut("out"), ArgDescription(@"The directory to create folders containing the sorted files by year & month"), ArgDefaultValue(null)]
+            [ArgShortcut("out"), ArgDescription(@"The directory to create folders containing the sorted files by year & month"), ArgDefaultValue(@"")]
             public string OutputDirectory { get; set; }
 
             [ArgShortcut("p"), ArgDescription(@"To denote the folder being processed contains images whose EXIF date should be used, if possible"), ArgDefaultValue(false)]
@@ -27,6 +28,12 @@ namespace FileSorter
 
             [ArgShortcut("f"), ArgShortcut("y"), ArgShortcut("confirm"), ArgDescription(@"Automatically overwrite files in destination, if they exist"), ArgDefaultValue(false)]
             public bool Force { get; set; }
+
+            [ArgShortcut("u"), ArgDescription(@"True to update the creation & write time to match EXIF time, false otherwise"), ArgDefaultValue(false)]
+            public bool UpdateTimestamp { get; set; }
+
+            [ArgShortcut("n"), ArgDescription(@"Don't move any files (useful with -u to update times only)"), ArgDefaultValue(false)]
+            public bool NoMove { get; set; }
         }
 
         static void Main(string[] args)
@@ -39,12 +46,12 @@ namespace FileSorter
                 return;
             }
 
-            var inputDirectory = input.InputDirectory ?? Environment.CurrentDirectory;
-            var outputDirectory = input.OutputDirectory ?? inputDirectory;
+            var inputDirectory = string.IsNullOrEmpty(input.InputDirectory) ? Environment.CurrentDirectory : input.InputDirectory;
+            var outputDirectory = string.IsNullOrEmpty(input.OutputDirectory) ? inputDirectory : input.OutputDirectory;
 
             var di = new DirectoryInfo(inputDirectory);
 
-            Console.WriteLine($@"Processing files...");
+            Console.WriteLine(@"Processing files...");
 
             foreach (var fi in di.EnumerateFiles(@"*", new System.IO.EnumerationOptions
             {
@@ -64,32 +71,45 @@ namespace FileSorter
                         exif.GetTagValue(ExifTags.DateTime, out DateTime time);
                         if (time != DateTime.MinValue)
                         {
+                            if (input.UpdateTimestamp && time != fi.CreationTime)
+                            {
+                                Console.Write($@"Updating time on {fi.Name} from {timeToUse} -> {time} ...");
+                                if (!input.NoOp)
+                                {
+                                    fi.CreationTime = fi.LastWriteTime = time;
+                                }
+                                Console.WriteLine();
+                            }
+
                             timeToUse = time;
                         }
                     }
                     catch { }
                 }
 
-                var dirName = Path.Combine(timeToUse.ToString(@"yyyy"), timeToUse.ToString($"MM MMMM"));
-                var targetFolder = Path.Combine(outputDirectory, dirName);
-
-                if (!input.NoOp)
+                if (!input.NoMove)
                 {
-                    Directory.CreateDirectory(targetFolder);
-                }
+                    var dirName = Path.Combine(timeToUse.ToString(@"yyyy"), timeToUse.ToString(@"MM MMMM"));
+                    var targetFolder = Path.Combine(outputDirectory, dirName);
 
-                Console.Write("{0} > {1} ...", fi.Name, dirName);
-                if (!input.NoOp)
-                {
-                    try
+                    if (!input.NoOp)
                     {
-                        File.Move(fi.FullName, Path.Combine(targetFolder, fi.Name), input.Force);
-                        Console.WriteLine();
+                        Directory.CreateDirectory(targetFolder);
                     }
-                    catch (IOException ex)
+
+                    Console.Write($@"{fi.Name} -> {dirName} ...");
+                    if (!input.NoOp)
                     {
-                        Console.Error.WriteLine($@"Error: {ex.Message}");
+                        try
+                        {
+                            File.Move(fi.FullName, Path.Combine(targetFolder, fi.Name), input.Force);
+                        }
+                        catch (IOException ex)
+                        {
+                            Console.Error.WriteLine($@"Error: {ex.Message}");
+                        }
                     }
+                    Console.WriteLine();
                 }
             }
         }
