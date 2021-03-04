@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using ExifLib;
 using PowerArgs;
 
@@ -56,13 +57,13 @@ namespace FileSorter
 
             Console.WriteLine(@"Processing files...");
 
-            foreach (var fi in di.EnumerateFiles(@"*", new System.IO.EnumerationOptions
+            Parallel.ForEach(di.EnumerateFiles(@"*", new EnumerationOptions
             {
                 RecurseSubdirectories = input.Recurse,
                 MatchCasing = MatchCasing.CaseInsensitive,
                 MatchType = MatchType.Simple,
                 ReturnSpecialDirectories = false
-            }))
+            }), fi =>
             {
                 var timeToUse = new[] { fi.CreationTime, fi.LastWriteTime, fi.LastAccessTime }.OrderBy(i => i).First();
 
@@ -114,7 +115,7 @@ namespace FileSorter
                     }
                     Console.WriteLine();
                 }
-            }
+            });
         }
     }
 }
