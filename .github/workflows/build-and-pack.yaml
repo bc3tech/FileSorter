@@ -17,7 +17,9 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.x
+    - name: Debug
+      run: echo $GITHUB_RUN_ID
     - name: Publish
-      run: dotnet publish --self-contained --no-build -r win-x64 -f net5.0 -c release -v diag --version-suffix "$GITHUB_RUN_ID"
+      run: dotnet publish --self-contained --no-build -r win-x64 -f net5.0 -c release -v diag
     - name: Package
       run: cd choco && choco pack --version 0.1.$GITHUB_RUN_ID
