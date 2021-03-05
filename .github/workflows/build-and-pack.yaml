@@ -3,8 +3,14 @@ name: Build and Package
 on:
   push:
     branches: [ main ]
+    paths-ignore:
+    - '**.md'
+    - 'LICENSE'
   pull_request:
     branches: [ main ]
+    paths-ignore:
+    - '**.md'
+    - 'LICENSE'
 
 jobs:
   build-and-package:
