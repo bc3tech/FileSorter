@@ -18,7 +18,7 @@ jobs:
         dotnet-version: 5.0.x
 
     - name: dotnet publish
-      run: dotnet publish --self-contained -r win-x64 -f net5.0 -c release /p:Version=0.1-$env.GITHUB_RUN_ID
+      run: dotnet publish --self-contained -r win-x64 -f net5.0 -c release /p:Version=0.1-$env:GITHUB_RUN_ID
 
     - name: Package
       run: cd choco && choco pack --version 0.1.$env:GITHUB_RUN_ID
