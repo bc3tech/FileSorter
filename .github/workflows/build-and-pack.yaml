@@ -18,10 +18,10 @@ jobs:
         dotnet-version: 5.0.x
 
     - name: dotnet publish
-      run: dotnet publish --self-contained -r win-x64 -f net5.0 -c release /p:Version=0.1-${{ github.run_id }}
+      run: dotnet publish --self-contained -r win-x64 -f net5.0 -c release /p:Version=0.1-$env.GITHUB_RUN_ID
 
     - name: Package
-      run: cd choco && choco pack --version 0.1.${{ github.run_id }}
+      run: cd choco && choco pack --version 0.1.$env:GITHUB_RUN_ID
 
     - name: Upload nupkg
       uses: actions/upload-artifact@v2
@@ -38,4 +38,12 @@ jobs:
         with:
           name: nupkg
       - name: publish to chocolatey community feed
-        run: choco publish *.nupkg
+        env:
+          PUSH_URL: ${{ secrets.PUSH_URL }}
+          API_KEY: ${{ secrets.API_KEY }}
+        run: |
+          $nupkgs = Get-ChildItem . *.nupkg
+          foreach ($pkg in $nupkgs) {
+            Write-Host "Pushing: $($pkg.FullName) ..."
+            choco push "$($pkg.FullName)" -s "$env:PUSH_URL" -k "$env:API_KEY"
+          }
