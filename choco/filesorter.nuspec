@@ -43,7 +43,7 @@ This is a nuspec. It mostly adheres to https://docs.nuget.org/create/Nuspec-Refe
     <!-- If there is a license Url available, it is required for the community feed -->
     <!-- <licenseUrl>Software License Location __REMOVE_OR_FILL_OUT__</licenseUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>-->
-    <projectSourceUrl>https://github.com/bc3tech/filesorter</projectSourceUrl>
+    <!-- <projectSourceUrl>https://github.com/bc3tech/filesorter</projectSourceUrl> -->
     <packageSourceUrl>https://github.com/bc3tech/FileSorter/tree/main/choco</packageSourceUrl>
     <!--<docsUrl>At what url are the software docs located?</docsUrl>-->
     <!--<mailingListUrl></mailingListUrl>-->
