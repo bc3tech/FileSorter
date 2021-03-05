@@ -20,8 +20,8 @@ jobs:
     - name: dotnet restore
       run: dotnet restore -r win-x64
     - name: dotnet build
-      run: dotnet build -r win-x86 -f net5.0 -c release /p:Version=0.1-${{ github.run_id }}
+      run: dotnet build -f net5.0 -c release /p:Version=0.1-${{ github.run_id }}
     - name: dotnet publish
-      run: dotnet publish --no-build --self-contained
+      run: dotnet publish --no-build --self-contained -r win-x64
     - name: Package
       run: cd choco && choco pack --version 0.1.${{ github.run_id }}
