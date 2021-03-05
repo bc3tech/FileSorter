@@ -20,7 +20,7 @@ jobs:
     - name: dotnet restore
       run: dotnet restore
     - name: Debug
-      run: echo ${{ env.GITHUB_RUN_ID }}
+      run: echo ${{ github.run_id }}
     - name: dotnet publish
       run: dotnet publish --self-contained --no-build -r win-x64 -f net5.0 -c release -v diag --version-suffix ${{ env.GITHUB_RUN_ID }}
     - name: Package
