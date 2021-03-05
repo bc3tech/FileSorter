@@ -1,23 +1,41 @@
 name: Build and Package
 
-on: push
-  # push:
-  #   branches: [ main ]
-  # pull_request:
-  #   branches: [ main ]
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
-  build:
-
+  build-and-package:
     runs-on: windows-latest
-
     steps:
     - uses: actions/checkout@v2
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.x
+
     - name: dotnet publish
       run: dotnet publish --self-contained -r win-x64 -f net5.0 -c release /p:Version=0.1-${{ github.run_id }}
+
     - name: Package
       run: cd choco && choco pack --version 0.1.${{ github.run_id }}
+
+    - name: Upload nupkg
+      uses: actions/upload-artifact@v2
+      with:
+        name: nupkg
+        path: choco/*.nupkg
+  publish:
+    if: github.ref == 'refs/heads/main'
+    needs: build-and-package
+    runs-on: windows-latest
+    steps:
+      - name: Download a single artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: nupkg
+      - name: publish to chocolatey community feed
+        run: choco publish *.nupkg
