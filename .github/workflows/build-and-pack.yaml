@@ -60,6 +60,7 @@ jobs:
             choco push "$($pkg.FullName)" -s "$env:PUSH_URL" -k "$env:API_KEY"
           }
   create-release:
+    needs: build-and-package
     runs-on: ubuntu-latest
     steps:
       - name: Download a single artifact
