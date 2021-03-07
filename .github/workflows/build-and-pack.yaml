@@ -71,7 +71,7 @@ jobs:
       - name: Push new tag
         run: |
           git tag "$GITHUB_RUN_ID"
-          git push "$GITHUB_RUN_ID"
+          git push "$GITHUB_RUN_ID HEAD:$GITHUB_REF"
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v1
         with:
