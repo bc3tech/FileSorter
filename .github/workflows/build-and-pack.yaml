@@ -68,15 +68,17 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: binaries
+          path: bin
       - name: Push new tag
-        run: |
-          git tag "$GITHUB_RUN_ID"
-          git push "$GITHUB_RUN_ID HEAD:$GITHUB_REF"
+        uses: negz/create-tag@v1
+        with:
+          version: ${{ github.run_id }}
+          token: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v1
         with:
-          files: '**'
-          tag_name: "$GITHUB_RUN_ID"
+          files: 'bin/**'
+          tag_name: ${{ github.run_id }}
           prerelease: ${{ github.ref != 'refs/heads/main'}}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
