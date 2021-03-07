@@ -71,6 +71,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: '**'
+          tag_name: $GITHUB_RUN_ID
           prerelease: ${{ github.ref != 'refs/heads/main'}}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
