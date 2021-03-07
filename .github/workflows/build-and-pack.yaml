@@ -12,6 +12,9 @@ on:
     - '**.md'
     - 'LICENSE'
 
+env:
+  APP_VERSION: "0.1-$GITHUB_RUN_ID"
+
 jobs:
   build-and-package:
     runs-on: windows-latest
@@ -22,7 +25,8 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.x
-
+    - name: debug
+      run: "echo app version: $env.APP_VERSION"
     - name: dotnet publish
       run: dotnet publish --self-contained -r win-x64 -f net5.0 -c release /p:Version=0.1-$env:GITHUB_RUN_ID
 
