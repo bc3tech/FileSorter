@@ -16,7 +16,15 @@ env:
   APP_VERSION: "0.1-${{ github.run_id }}"
 
 jobs:
+  compute-app-version:
+    runs-on: ubuntu-latest
+    steps:
+    - name: app_version
+      run: echo "::set-output name=app_version::0.1-$GITHUB_RUN_ID"
+    outputs:
+      app_version: ${{ steps.app_version.outputs.app_version }}
   build-and-package:
+    needs: compute-app-version
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v2
@@ -26,9 +34,9 @@ jobs:
       with:
         dotnet-version: 5.0.x
     - name: debug
-      run: "echo app version: $env.APP_VERSION"
+      run: "echo app version: ${{ needs.compute-app-version.outputs.app_version }}"
     - name: dotnet publish
-      run: dotnet publish --self-contained -r win-x64 -f net5.0 -c release /p:Version=0.1-$env:GITHUB_RUN_ID
+      run: dotnet publish --self-contained -r win-x64 -f net5.0 -c release /p:Version=${{ needs.compute-app-version.outputs.app_version }}
 
     - name: Upload binaries
       uses: actions/upload-artifact@v2
@@ -37,7 +45,7 @@ jobs:
         path: bin\Release\net5.0\win-x64\publish\**
 
     - name: Package
-      run: cd choco && choco pack --version 0.1.$env:GITHUB_RUN_ID
+      run: cd choco && choco pack --version ${{ needs.compute-app-version.outputs.app_version }}
 
     - name: Upload nupkg
       uses: actions/upload-artifact@v2
@@ -64,7 +72,9 @@ jobs:
             choco push "$($pkg.FullName)" -s "$env:PUSH_URL" -k "$env:API_KEY"
           }
   create-release:
-    needs: build-and-package
+    needs: 
+    - build-and-package
+    - compute-app-version
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -76,13 +86,13 @@ jobs:
       - name: Push new tag
         uses: negz/create-tag@v1
         with:
-          version: ${{ env.APP_VERSION }}
+          version: ${{ needs.compute-app-version.outputs.app_version }}
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v1
         with:
           files: 'bin/**'
-          tag_name: ${{ env.APP_VERSION }}
+          tag_name: ${{ needs.compute-app-version.outputs.app_version }}
           prerelease: ${{ github.ref != 'refs/heads/main'}}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
