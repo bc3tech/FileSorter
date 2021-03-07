@@ -63,15 +63,20 @@ jobs:
     needs: build-and-package
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
       - name: Download a single artifact
         uses: actions/download-artifact@v2
         with:
           name: binaries
+      - name: Push new tag
+        run: |
+          git tag "$GITHUB_RUN_ID"
+          git push "$GITHUB_RUN_ID"
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v1
         with:
           files: '**'
-          tag_name: $GITHUB_RUN_ID
+          tag_name: "$GITHUB_RUN_ID"
           prerelease: ${{ github.ref != 'refs/heads/main'}}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
