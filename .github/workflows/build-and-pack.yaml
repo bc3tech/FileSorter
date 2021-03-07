@@ -88,16 +88,17 @@ jobs:
       - name: Create zip
         uses: TheDoctor0/zip-release@0.4.1
         with:
-          filename: "releases/Filesorter_${{ env.APP_VERSION }}.zip"
-          path: bin
+          filename: "Filesorter_${{ env.APP_VERSION }}.zip"
+          path: releases
           type: zip
 
       - name: Create tar
         uses: TheDoctor0/zip-release@0.4.1
         with:
-          filename: "releases0/Filesorter_${{ env.APP_VERSION }}.tar.gz"
-          path: bin
+          filename: "Filesorter_${{ env.APP_VERSION }}.tar.gz"
+          path: releases
           type: tar
+          exclusions: 'releases/**'
 
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v1
