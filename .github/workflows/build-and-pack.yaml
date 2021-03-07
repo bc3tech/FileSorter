@@ -85,10 +85,24 @@ jobs:
           version: ${{ env.APP_VERSION }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Create zip
+        uses: TheDoctor0/zip-release@0.4.1
+        with:
+          filename: "releases/Filesorter_${{ env.APP_VERSION }}.zip"
+          path: bin
+          type: zip
+
+      - name: Create tar
+        uses: TheDoctor0/zip-release@0.4.1
+        with:
+          filename: "releases0/Filesorter_${{ env.APP_VERSION }}.tar.gz"
+          path: bin
+          type: tar
+
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v1
         with:
-          files: 'bin/**'
+          files: 'releases/**'
           tag_name: ${{ env.APP_VERSION }}
           prerelease: ${{ github.ref != 'refs/heads/main'}}
         env:
