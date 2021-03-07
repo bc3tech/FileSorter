@@ -26,6 +26,12 @@ jobs:
     - name: dotnet publish
       run: dotnet publish --self-contained -r win-x64 -f net5.0 -c release /p:Version=0.1-$env:GITHUB_RUN_ID
 
+    - name: Upload binaries
+      uses: actions/upload-artifact@v2
+      with:
+        name: binaries
+        path: bin\Release\net5.0\win-x64\publish\**
+
     - name: Package
       run: cd choco && choco pack --version 0.1.$env:GITHUB_RUN_ID
 
@@ -53,3 +59,17 @@ jobs:
             Write-Host "Pushing: $($pkg.FullName) ..."
             choco push "$($pkg.FullName)" -s "$env:PUSH_URL" -k "$env:API_KEY"
           }
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download a single artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: binaries
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: '**'
+          prerelease: ${{ github.ref != 'refs/heads/main'}}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
