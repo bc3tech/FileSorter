@@ -13,7 +13,7 @@ on:
     - 'LICENSE'
 
 env:
-  APP_VERSION: "0.1-${{ github.run_id }}"
+  APP_VERSION: "0.1.${{ github.run_id }}"
 
 jobs:
   build-and-package:
