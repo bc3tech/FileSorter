@@ -85,17 +85,11 @@ jobs:
           dest: "Filesorter_${{ env.APP_VERSION }}.zip"
           files: bin/
 
-      - name: Push new tag
-        uses: negz/create-tag@v1
-        with:
-          version: ${{ env.APP_VERSION }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Publish GitHub release
-        uses: softprops/action-gh-release@v1
+        uses: ncipollo/release-action@v1
         with:
-          files: "Filesorter_${{ env.APP_VERSION }}.zip"
-          tag_name: ${{ env.APP_VERSION }}
+          artifact: "Filesorter_${{ env.APP_VERSION }}.zip"
+          artifactContentType: "application/zip"
+          tag: ${{ env.APP_VERSION }}
           prerelease: ${{ github.ref != 'refs/heads/main'}}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
