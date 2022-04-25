@@ -83,7 +83,7 @@ jobs:
       - name: Publish GitHub release
         uses: ncipollo/release-action@v1
         with:
-          artifact: "Filesorter_${{ env.APP_VERSION }}.zip"
+          artifacts: "Filesorter_${{ env.APP_VERSION }}.zip"
           artifactContentType: "application/zip"
           tag: ${{ env.APP_VERSION }}
           prerelease: ${{ github.ref != 'refs/heads/main'}}
