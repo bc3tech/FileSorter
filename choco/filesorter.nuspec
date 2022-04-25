@@ -77,7 +77,7 @@ This is a nuspec. It mostly adheres to https://docs.nuget.org/create/Nuspec-Refe
     <!-- this section controls what actually gets packaged into the Chocolatey package -->
     <file src="createdump.exe.ignore" target="." />
     <file src="tools\**" target="tools" />
-    <file src="..\bin\release\net5.0\win-x64\publish\**" target="." />
+    <file src="..\bin\release\net6.0\win-x64\publish\**" target="." />
     <!--Building from Linux? You may need this instead: <file src="tools/**" target="tools" />-->
   </files>
 </package>
