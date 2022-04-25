@@ -38,6 +38,9 @@ namespace FileSorter
 
             [ArgShortcut("r"), ArgShortcut("--r"), ArgDescription(@"True to process all files in all subdirectories of Input Directory. Compatible only with -NoMove"), ArgDefaultValue(false)]
             public bool Recurse { get; set; }
+
+            [ArgShortcut("y"), ArgShortcut("--y"), ArgShortcut("--confirm"), ArgDescription(@"Do not prompt to commence operation"), ArgDefaultValue(false)]
+            public bool Confirm { get; set; }
         }
 
         static void Main(string[] args)
@@ -53,17 +56,30 @@ namespace FileSorter
             var inputDirectory = string.IsNullOrEmpty(input.InputDirectory) ? Environment.CurrentDirectory : input.InputDirectory;
             var outputDirectory = string.IsNullOrEmpty(input.OutputDirectory) ? inputDirectory : input.OutputDirectory;
 
-            var di = new DirectoryInfo(inputDirectory);
-
-            Console.WriteLine(@"Processing files...");
-
-            Parallel.ForEach(di.EnumerateFiles(@"*", new EnumerationOptions
+            var inputDirectoryInfo = new DirectoryInfo(inputDirectory);
+            var filesToProcess = inputDirectoryInfo.EnumerateFiles(@"*", new EnumerationOptions
             {
                 RecurseSubdirectories = input.Recurse,
                 MatchCasing = MatchCasing.CaseInsensitive,
                 MatchType = MatchType.Simple,
                 ReturnSpecialDirectories = false
-            }), fi =>
+            });
+
+            var outputDirectoryInfo = new DirectoryInfo(outputDirectory);
+
+            if (!input.Confirm)
+            {
+                Console.WriteLine($@"About to process {filesToProcess.LongCount()} files(s) from {inputDirectoryInfo.FullName} into {outputDirectoryInfo.FullName} ...");
+                Console.WriteLine(@"This operation cannot be undone! Press any key to continue or Esc to cancel");
+                if (Console.ReadKey().Key == ConsoleKey.Escape)
+                {
+                    return;
+                }
+            }
+
+            Console.WriteLine(@"Processing files...");
+
+            Parallel.ForEach(filesToProcess, fi =>
             {
                 var timeToUse = new[] { fi.CreationTime, fi.LastWriteTime, fi.LastAccessTime }.OrderBy(i => i).First();
 
