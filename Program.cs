@@ -1,15 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+
 using ExifLib;
+
 using PowerArgs;
 
 namespace FileSorter
 {
     class Program
     {
-        [TabCompletion]
+        [TabCompletion, MyArgHook]
         class ProgramArgs
         {
             [HelpHook, ArgShortcut("?"), ArgShortcut("h"), ArgShortcut("--?"), ArgShortcut("--h"), ArgDescription("Shows help")]
@@ -43,13 +46,55 @@ namespace FileSorter
             public bool Confirm { get; set; }
         }
 
+        class MyArgHook : ArgHook
+        {
+            public override void BeforeValidateDefinition(HookContext context)
+            {
+                context.Definition.IsNonInteractive = true;
+
+                base.BeforeValidateDefinition(context);
+            }
+
+            public override void AfterPopulateProperties(HookContext context)
+            {
+                var input = context.Args as ProgramArgs;
+
+                var errMsgs = new List<string>();
+                if (input.Recurse && !input.NoMove)
+                {
+                    errMsgs.Add("ERROR: Recurse is only available if NoMove is also true");
+                }
+
+                if (input.NoOp && input.Force)
+                {
+                    errMsgs.Add("ERROR: NoOp and Force cannot both be true");
+                }
+
+                if (errMsgs.Any())
+                {
+                    Console.WriteLine(string.Concat(string.Join(Environment.NewLine, errMsgs), Environment.NewLine));
+                    PrintUsage();
+                    context.CancelAllProcessing();
+                }
+            }
+        }
+
         static void Main(string[] args)
         {
-            var input = PowerArgs.Args.Parse<ProgramArgs>(args);
-
-            if (input == null)
+            ProgramArgs input;
+            try
             {
-                // means client ran with '-h' to output help.
+                input = PowerArgs.Args.Parse<ProgramArgs>(args);
+
+                if (input == null || input.Help)
+                {
+                    // means client ran with '-h' to output help.
+                    return;
+                }
+            }
+            catch (PowerArgs.ArgException ex)
+            {
+                Console.WriteLine(ex.Message);
                 return;
             }
 
@@ -132,6 +177,11 @@ namespace FileSorter
                     Console.WriteLine();
                 }
             });
+        }
+
+        private static void PrintUsage()
+        {
+            Console.Write(PowerArgs.ArgUsage.GenerateUsageFromTemplate<ProgramArgs>());
         }
     }
 }
