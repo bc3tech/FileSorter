@@ -1,6 +1,13 @@
 {
   "profiles": {
-    "FileSorter": {
+    "Auto-confirm": {
+      "commandName": "Project",
+      "commandLineArgs": "-y"
+    },
+    "Prompt to continue": {
+      "commandName": "Project"
+    },
+    "Show Help": {
       "commandName": "Project",
       "commandLineArgs": "-h"
     }
