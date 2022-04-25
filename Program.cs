@@ -12,31 +12,31 @@ namespace FileSorter
         [TabCompletion]
         class ProgramArgs
         {
-            [HelpHook, ArgShortcut("?"), ArgShortcut("h"), ArgDescription("Shows help")]
+            [HelpHook, ArgShortcut("?"), ArgShortcut("h"), ArgShortcut("--?"), ArgShortcut("--h"), ArgDescription("Shows help")]
             public bool Help { get; set; }
 
-            [ArgShortcut("in"), ArgDescription(@"The directory containing the files to process"), ArgDefaultValue(@"")]
+            [ArgShortcut("i"), ArgShortcut("--i"), ArgShortcut("in"), ArgShortcut("--in"), ArgDescription(@"The directory containing the files to process"), ArgDefaultValue(@"."), ArgExistingDirectory]
             public string InputDirectory { get; set; }
 
-            [ArgShortcut("out"), ArgDescription(@"The directory to create folders containing the sorted files by year & month"), ArgDefaultValue(@"")]
+            [ArgShortcut("o"), ArgShortcut("--o"), ArgShortcut("out"), ArgShortcut("--out"), ArgDescription(@"The directory in which to create folders containing the sorted files by year & month"), ArgDefaultValue(@".\out")]
             public string OutputDirectory { get; set; }
 
-            [ArgShortcut("p"), ArgDescription(@"To denote the folder being processed contains images whose EXIF date should be used, if possible"), ArgDefaultValue(false)]
+            [ArgShortcut("p"), ArgShortcut("--p"), ArgDescription(@"To denote the folder being processed contains images whose EXIF date should be used, if possible"), ArgDefaultValue(false)]
             public bool IsPictures { get; set; }
 
-            [ArgShortcut("whatif"), ArgDescription(@"Don't actually move files, just show what would happen if we were to move them"), ArgDefaultValue(false)]
+            [ArgShortcut("whatif"), ArgShortcut("--whatif"), ArgDescription(@"Don't actually move files, just show what would happen if we were to move them"), ArgDefaultValue(false)]
             public bool NoOp { get; set; }
 
-            [ArgShortcut("f"), ArgShortcut("y"), ArgShortcut("confirm"), ArgDescription(@"Automatically overwrite files in destination, if they exist"), ArgDefaultValue(false)]
+            [ArgShortcut("f"), ArgShortcut("--f"), ArgDescription(@"Automatically overwrite files in destination, if they exist"), ArgDefaultValue(false)]
             public bool Force { get; set; }
 
-            [ArgShortcut("u"), ArgDescription(@"True to update the creation & write time to match EXIF time, false otherwise"), ArgDefaultValue(false)]
+            [ArgShortcut("u"), ArgShortcut("--u"), ArgDescription(@"True to update the creation & write time to match EXIF time, false otherwise"), ArgDefaultValue(false)]
             public bool UpdateTimestamp { get; set; }
 
-            [ArgShortcut("n"), ArgDescription(@"Don't move any files (useful with -u to update times only)"), ArgDefaultValue(false)]
+            [ArgShortcut("n"), ArgShortcut("--n"), ArgDescription(@"Don't move any files (useful with -u to update times only)"), ArgDefaultValue(true)]
             public bool NoMove { get; set; }
 
-            [ArgShortcut("r"), ArgDescription(@"True to process all files in all subdirectories of Input Directory. Compatible only with -NoMove (and -u)"), ArgDefaultValue(false)]
+            [ArgShortcut("r"), ArgShortcut("--r"), ArgDescription(@"True to process all files in all subdirectories of Input Directory. Compatible only with -NoMove"), ArgDefaultValue(false)]
             public bool Recurse { get; set; }
         }
 
