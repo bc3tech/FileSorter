@@ -6,11 +6,6 @@ on:
     paths-ignore:
       - "**.md"
       - "LICENSE"
-  pull_request:
-    branches: [main]
-    paths-ignore:
-      - "**.md"
-      - "LICENSE"
 
 env:
   APP_VERSION: "0.2.${{ github.run_number }}"
