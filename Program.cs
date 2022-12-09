@@ -36,7 +36,7 @@ namespace FileSorter
             [ArgShortcut("u"), ArgShortcut("--u"), ArgDescription(@"True to update the creation & write time to match EXIF time, false otherwise"), ArgDefaultValue(false)]
             public bool UpdateTimestamp { get; set; }
 
-            [ArgShortcut("n"), ArgShortcut("--n"), ArgDescription(@"Don't move any files (useful with -u to update times only)"), ArgDefaultValue(true)]
+            [ArgShortcut("n"), ArgShortcut("--n"), ArgDescription(@"Don't move any files (useful with -u to update times only)"), ArgDefaultValue(false)]
             public bool NoMove { get; set; }
 
             [ArgShortcut("r"), ArgShortcut("--r"), ArgDescription(@"True to process all files in all subdirectories of Input Directory. Compatible only with -NoMove"), ArgDefaultValue(false)]
