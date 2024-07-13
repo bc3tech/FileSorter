@@ -87,3 +87,15 @@ jobs:
           tag: ${{ env.APP_VERSION }}
           prerelease: ${{ github.ref != 'refs/heads/main'}}
           token: ${{ secrets.GITHUB_TOKEN }}
+  publish-winget:
+    needs: 
+      - create-release
+    runs-on: ubuntu-latest
+    steps:
+    - name: Update Packages
+      uses: michidk/winget-updater@v1
+      with:
+        komac-token: ${{ secrets.GITHUB_TOKEN }}
+        identifier: BC3Tech.FileSorter
+        repo: bc3tech/filesorter
+        url: https://github.com/bc3tech/filesorter/releases/download/{VERSION}/FileSorter_{VERSION}.zip

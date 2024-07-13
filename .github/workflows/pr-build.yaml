@@ -8,12 +8,10 @@ on:
       - "LICENSE"
 
 jobs:
-  build:
+  build-release:
     runs-on: windows-latest
+    needs: []
     steps:
-      - name: debug
-        run: "echo app version: $APP_VERSION"
-
       - uses: actions/checkout@v4
 
       - name: Setup .NET
@@ -22,4 +20,17 @@ jobs:
           dotnet-version: 8.x
 
       - name: dotnet build
-        run: dotnet build --self-contained -r win-x64 -f net8.0 -c release
+        run: dotnet build -c release
+  build-debug:
+    runs-on: windows-latest
+    needs: []
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.x
+
+      - name: dotnet build
+        run: dotnet build -c debug
