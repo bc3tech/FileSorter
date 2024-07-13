@@ -66,4 +66,10 @@ this option.
 
 ## Installation
 
-Filesorter is distributed via [Chocolatey](https://chocolatey.org) and can be installed via `choco install filesorter`
+### Chocolatey
+
+- `choco install filesorter`
+
+### WinGet
+
+- `winget install BC3Tech.FileSorter`
