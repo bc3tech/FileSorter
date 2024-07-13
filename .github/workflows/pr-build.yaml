@@ -7,37 +7,19 @@ on:
       - "**.md"
       - "LICENSE"
 
-env:
-  APP_VERSION: "0.2.${{ github.run_number }}"
-
 jobs:
-  build-and-package:
+  build:
     runs-on: windows-latest
     steps:
       - name: debug
         run: "echo app version: $APP_VERSION"
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 6.x
+          dotnet-version: 8.x
 
-      - name: dotnet publish
-        run: dotnet publish --self-contained -r win-x64 -f net6.0 -c release /p:Version=${{ env.APP_VERSION }}
-
-      - name: Upload binaries
-        uses: actions/upload-artifact@v2
-        with:
-          name: binaries
-          path: bin\Release\net6.0\win-x64\publish\**
-
-      - name: Package
-        run: cd choco && choco pack --version ${{ env.APP_VERSION }}
-
-      - name: Upload nupkg
-        uses: actions/upload-artifact@v2
-        with:
-          name: nupkg
-          path: choco/*.nupkg
+      - name: dotnet build
+        run: dotnet build --self-contained -r win-x64 -f net8.0 -c release
