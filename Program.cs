@@ -133,7 +133,7 @@ class Program
                 try
                 {
                     using var exif = new ExifReader(fi.FullName);
-                    exif.GetTagValue(ExifTags.DateTime, out DateTime time);
+                    exif.GetTagValue(ExifTags.DateTimeOriginal, out DateTime time);
                     if (time != DateTime.MinValue)
                     {
                         if (input.UpdateTimestamp && time != fi.CreationTime)
