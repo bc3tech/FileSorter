@@ -11,7 +11,7 @@ env:
   APP_VERSION: "0.2.${{ github.run_number }}"
 
 jobs:
-  build-and-package:
+  build:
     runs-on: windows-latest
     steps:
       - name: debug
@@ -32,6 +32,17 @@ jobs:
         with:
           name: binaries
           path: bin\Release\net8.0\win-x64\publish\**
+  choco-pack:
+    needs: build
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download a single artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: binaries
+          path: bin
 
       - name: Package
         run: cd choco && choco pack --version ${{ env.APP_VERSION }}
@@ -43,7 +54,7 @@ jobs:
           path: choco/*.nupkg
   publish-choco:
     if: github.ref == 'refs/heads/main'
-    needs: build-and-package
+    needs: choco-pack
     runs-on: windows-latest
     steps:
       - name: Download a single artifact
@@ -62,11 +73,9 @@ jobs:
             choco push "$($pkg.FullName)" -s "$env:PUSH_URL" -k "$env:API_KEY"
           }
   create-release:
-    needs:
-      - build-and-package
+    needs: build
     runs-on: ubuntu-latest
     steps:
-      # - uses: actions/checkout@v2
       - name: Download a single artifact
         uses: actions/download-artifact@v4
         with:
@@ -88,8 +97,7 @@ jobs:
           prerelease: ${{ github.ref != 'refs/heads/main'}}
           token: ${{ secrets.GITHUB_TOKEN }}
   publish-winget:
-    needs: 
-      - create-release
+    needs: create-release
     runs-on: ubuntu-latest
     steps:
     - name: Update Packages
