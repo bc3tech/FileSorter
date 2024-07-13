@@ -20,7 +20,7 @@
 
   <ItemGroup>
     <PackageReference Include="ExifLib.Standard" Version="1.7.0" />
-    <PackageReference Include="PowerArgs" Version="3.6.0" />
+    <PackageReference Include="PowerArgs" Version="4.0.3" />
   </ItemGroup>
 
 </Project>
