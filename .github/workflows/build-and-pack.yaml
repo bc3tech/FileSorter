@@ -25,13 +25,13 @@ jobs:
           dotnet-version: 8.x
 
       - name: dotnet publish
-        run: dotnet publish --self-contained -r win-x64 -f net8.0 -c release /p:Version=${{ env.APP_VERSION }}
+        run: dotnet publish -o pub -c release -p:PublishSingleFile=true -p:Version=${{ env.APP_VERSION }}
 
       - name: Upload binaries
         uses: actions/upload-artifact@v4
         with:
           name: binaries
-          path: bin\Release\net8.0\win-x64\publish\**
+          path: pub
   choco-pack:
     needs: build
     runs-on: windows-latest
