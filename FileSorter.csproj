@@ -19,8 +19,22 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="azure-openai\**" />
+    <Compile Remove="openai\**" />
+    <EmbeddedResource Remove="azure-openai\**" />
+    <EmbeddedResource Remove="openai\**" />
+    <None Remove="azure-openai\**" />
+    <None Remove="openai\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Azure.Identity" Version="1.12.0" />
     <PackageReference Include="PowerArgs" Version="4.0.3" />
     <PackageReference Include="WindowsAPICodePack" Version="8.0.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="azure-openai\sdk\openai\Azure.AI.OpenAI\src\Azure.AI.OpenAI.csproj" />
   </ItemGroup>
 
 </Project>

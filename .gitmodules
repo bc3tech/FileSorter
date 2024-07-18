@@ -1,0 +1,6 @@
+[submodule "openai"]
+	path = openai
+	url = https://github.com/bc3tech/openai-dotnet.git
+[submodule "azure-openai"]
+	path = azure-openai
+	url = https://github.com/bc3tech/openai-dotnet.git
