@@ -1,11 +1,16 @@
 ﻿namespace FileSorter;
 
 using System;
+using System.ClientModel;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
+using Azure.AI.OpenAI;
+
+using OpenAI.Assistants;
+using OpenAI.Chat;
 
 using PowerArgs;
 
@@ -46,6 +51,9 @@ class Program
 
         [ArgShortcut("y"), ArgShortcut("--y"), ArgShortcut("--confirm"), ArgDescription(@"Do not prompt to commence operation"), ArgDefaultValue(false)]
         public bool Confirm { get; set; }
+
+        [ArgShortcut("t"), ArgShortcut("--tag"), ArgDescription(@"Export EXIF data from pictures to Console"), ArgDefaultValue(false)]
+        public bool TagPictures { get; internal set; }
     }
 
     class MyArgHook : ArgHook
@@ -142,6 +150,9 @@ class Program
                     setTimestamp();
                 }
 
+                if (input.TagPictures)
+                {
+                    GptTag(fi.FullName);
                 }
             }
 
@@ -236,7 +247,71 @@ class Program
         }
     }
 
+    private static readonly Lazy<AzureOpenAIClient> _azureOpenAiClient = new Lazy<AzureOpenAIClient>(() => new AzureOpenAIClient(new(Environment.GetEnvironmentVariable("GPT_ENDPOINT")), new ApiKeyCredential(Environment.GetEnvironmentVariable("GPT_API_KEY"))));
+    private static readonly Lazy<ChatClient> _gptClient = new(() => _azureOpenAiClient.Value.GetChatClient(Environment.GetEnvironmentVariable("GPT_DEPLOYMENT")));
+
+    private static void GptTag(string fileName)
     {
+        var ps = Microsoft.WindowsAPICodePack.Shell.ShellFile.FromFilePath(fileName);
+        var keywordString = string.Join(',', ps.Properties?.System?.Keywords?.Value ?? []);
+        var lat = ps.Properties?.System?.GPS.Latitude?.Value;
+        var lon = ps.Properties?.System?.GPS.Longitude?.Value;
+
+        var description = string.Empty;
+        if (!string.IsNullOrWhiteSpace(keywordString))
+        {
+            description = $@"An image with keywords '{keywordString}'";
+        }
+
+        if (lat is not null && lon is not null)
+        {
+            if (description.Length > 0)
+            {
+                description += $@" and taken at geolocation {convertToDecimalDegrees(lat)},{convertToDecimalDegrees(lon)}";
+            }
+            else
+            {
+                description = $@"Taken at geolocation {convertToDecimalDegrees(lat)},{convertToDecimalDegrees(lon)}";
+            }
+        }
+
+        Console.WriteLine($@"Sending image with description '{description}' ...");
+        var files = _azureOpenAiClient.Value.GetFileClient();
+        try
+        {
+            var gptFile = files.UploadFile(fileName, OpenAI.Files.FileUploadPurpose.Vision);
+#pragma warning disable OPENAI001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+            var asstClient = _azureOpenAiClient.Value.GetAssistantClient();
+            var asst = asstClient.CreateAssistant(Environment.GetEnvironmentVariable("GPT_DEPLOYMENT"));
+#pragma warning restore OPENAI001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+            var threadResult = asstClient.CreateThreadAndRun(asst, new ThreadCreationOptions()
+            {
+                InitialMessages = {
+                new ThreadInitializationMessage(MessageRole.User, [
+                    "Give me back relevant tags for this image, given the detail provided along with it and its content. Separate them with semicolons (;). Do not include any other information or markup in your reply.",
+                    MessageContent.FromImageFileId(gptFile.Value.Id)
+                ])
+            }
+            });
+
+            //var response = completion.Value.Content[0].Text;
+            //Console.WriteLine($@"GPT Response: {response}");
+        }
+        catch (ClientResultException e) when (e.Status is 400 && e.Message.Contains("invalidPayload"))
+        {
+            Console.WriteLine($@"{fileName} is not valid for tagging via GPT. Skipping.");
+        }
+
+        static double convertToDecimalDegrees(double[] dms)
+        {
+            var degrees = dms[0];
+            var minutes = dms[1];
+            var seconds = dms[2];
+
+            var decimalDegrees = degrees + (minutes / 60) + (seconds / 3600);
+
+            return decimalDegrees;
+        }
     }
 
     private static void PrintUsage() => Console.Write(ArgUsage.GenerateUsageFromTemplate<ProgramArgs>());
