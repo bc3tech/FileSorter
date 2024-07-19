@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <StartupObject>FileSorter.Program</StartupObject>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Version>0.0.1</Version>
@@ -19,8 +19,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ExifLib.Standard" Version="1.7.0" />
     <PackageReference Include="PowerArgs" Version="4.0.3" />
+    <PackageReference Include="WindowsAPICodePack" Version="8.0.4" />
   </ItemGroup>
 
 </Project>
