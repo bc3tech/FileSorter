@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
+using ExifLib;
 
 using PowerArgs;
 
@@ -141,8 +142,6 @@ class Program
                 {
                     setTimestamp();
                 }
-
-                }
             }
 
             if (!input.NoMove && !input.Recurse)
@@ -222,7 +221,7 @@ class Program
 
                         try
                         {
-                            using var w = ps.Properties.GetPropertyWriter();
+                            using ShellPropertyWriter w = ps.Properties.GetPropertyWriter();
                             w.WriteProperty(ps.Properties.System.Photo.DateTaken, timeToUse);
                         }
                         catch { }
@@ -234,9 +233,6 @@ class Program
         {
             Console.WriteLine($@"Error processing {fi.FullName}: {ex.Message}");
         }
-    }
-
-    {
     }
 
     private static void PrintUsage() => Console.Write(ArgUsage.GenerateUsageFromTemplate<ProgramArgs>());
