@@ -49,6 +49,27 @@ jobs:
         with:
           name: binaries
           path: pub/FileSorter.*
+  choco-pack:
+    needs: build-release
+    if: steps.isCodeOwner.outputs.isCodeOwner == 'true'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download a single artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: binaries
+          path: bin
+
+      - name: Package
+        run: cd choco && choco pack --version ${{ env.APP_VERSION }}
+
+      - name: Upload nupkg
+        uses: actions/upload-artifact@v4
+        with:
+          name: nupkg
+          path: choco/*.nupkg
   build-debug:
     runs-on: windows-latest
     steps:
