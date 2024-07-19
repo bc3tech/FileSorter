@@ -6,6 +6,8 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
+using Microsoft.WindowsAPICodePack.Shell;
+using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
 
 using PowerArgs;
 
@@ -141,8 +143,6 @@ class Program
                 {
                     setTimestamp();
                 }
-
-                }
             }
 
             if (!input.NoMove && !input.Recurse)
@@ -186,7 +186,7 @@ class Program
 
             static DateTime getEmbeddedTimestamp(string fileName)
             {
-                var ps = Microsoft.WindowsAPICodePack.Shell.ShellFile.FromFilePath(fileName);
+                var ps = ShellFile.FromFilePath(fileName);
                 return ps.Properties.System.Photo.DateTaken.Value ?? ps.Properties.System.Media.DateEncoded.Value ?? DateTime.MinValue;
             }
 
@@ -210,7 +210,7 @@ class Program
 
                 if (getEmbeddedTimestamp(fi.FullName) != timeToUse)
                 {
-                    var ps = Microsoft.WindowsAPICodePack.Shell.ShellFile.FromFilePath(fi.FullName);
+                    var ps = ShellFile.FromFilePath(fi.FullName);
                     Console.WriteLine($@"Updating embedded time on {fi.FullName} -> {timeToUse} ...");
                     if (!input.NoOp)
                     {
@@ -222,7 +222,7 @@ class Program
 
                         try
                         {
-                            using var w = ps.Properties.GetPropertyWriter();
+                            using ShellPropertyWriter w = ps.Properties.GetPropertyWriter();
                             w.WriteProperty(ps.Properties.System.Photo.DateTaken, timeToUse);
                         }
                         catch { }
@@ -234,9 +234,6 @@ class Program
         {
             Console.WriteLine($@"Error processing {fi.FullName}: {ex.Message}");
         }
-    }
-
-    {
     }
 
     private static void PrintUsage() => Console.Write(ArgUsage.GenerateUsageFromTemplate<ProgramArgs>());
