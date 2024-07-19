@@ -10,6 +10,24 @@
     "Show Help": {
       "commandName": "Project",
       "commandLineArgs": "-h"
+    },
+    "Scenario": {
+      "commandName": "Project",
+      "commandLineArgs": "-p -x -i \"C:\\Users\\hurlburb\\OneDrive - Microsoft\\Pictures\" -n -y",
+      "environmentVariables": {
+        "GPT_ENDPOINT": "https://gpt-four-open-ai.openai.azure.com/",
+        "GPT_DEPLOYMENT": "gpt-4o"
+      }
+    },
+    "Videos": {
+      "commandName": "Project",
+      "commandLineArgs": "-p -u -t -n -y --whatif",
+      "workingDirectory": "C:\\Users\\hurlburb\\Downloads\\v",
+      "environmentVariables": {
+        "GPT_ENDPOINT": "https://gpt-four-open-ai.openai.azure.com/",
+        "GPT_DEPLOYMENT": "gpt-4o",
+        "GPT_API_KEY": "7cbcf6b024954924b927f45696d0a6c1"
+      }
     }
   }
 }
