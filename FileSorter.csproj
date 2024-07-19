@@ -1,26 +1,31 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
-    <StartupObject>FileSorter.Program</StartupObject>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <Version>0.0.1</Version>
-    <Authors>bc3tech</Authors>
-    <Company>BC3 Technologies</Company>
-    <Description>Sorts files into datetime subfolders, optionally parsing EXIF data of photos to get accurate date/time information.</Description>
-    <Copyright>(c) BC3 Technologies</Copyright>
-    <PackageProjectUrl>https://github.com/bc3tech/filesorter</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/bc3tech/filesorter</RepositoryUrl>
-    <RepositoryType>GitHub</RepositoryType>
-    <PackageTags>filesorter</PackageTags>
-    <AssemblyVersion>0.0.1</AssemblyVersion>
-    <NeutralLanguage>en-US</NeutralLanguage>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net8.0-windows</TargetFramework>
+		<StartupObject>FileSorter.Program</StartupObject>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+		<Version>0.0.1</Version>
+		<Authors>bc3tech</Authors>
+		<Company>BC3 Technologies</Company>
+		<Description>Sorts files into datetime subfolders, optionally parsing EXIF data of photos to get accurate date/time information.</Description>
+		<Copyright>(c) BC3 Technologies</Copyright>
+		<PackageProjectUrl>https://github.com/bc3tech/filesorter</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/bc3tech/filesorter</RepositoryUrl>
+		<RepositoryType>GitHub</RepositoryType>
+		<PackageTags>filesorter</PackageTags>
+		<AssemblyVersion>0.0.1</AssemblyVersion>
+		<NeutralLanguage>en-US</NeutralLanguage>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="PowerArgs" Version="4.0.3" />
-    <PackageReference Include="WindowsAPICodePack" Version="8.0.4" />
-  </ItemGroup>
+	<ItemGroup>
+	  <Compile Remove="choco\**" />
+	  <EmbeddedResource Remove="choco\**" />
+	  <None Remove="choco\**" />
+	</ItemGroup>
 
+	<ItemGroup>
+		<PackageReference Include="PowerArgs" Version="4.0.3" />
+		<PackageReference Include="WindowsAPICodePack" Version="8.0.4" />
+	</ItemGroup>
 </Project>
