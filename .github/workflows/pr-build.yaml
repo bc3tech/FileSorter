@@ -6,11 +6,28 @@ on:
     paths-ignore:
       - "**.md"
       - "LICENSE"
+  issue_comment:                                     
+    types: [created]
 
 jobs:
+  isCodeOwner:
+    if: github.event.issue.pull_request && contains(github.event.comment.body, '/test-pack')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Check if comment author is a code owner
+        id: check
+        run: |
+          CODEOWNERS=$(cat .github/CODEOWNERS)
+          COMMENT_AUTHOR=${{ github.event.comment.user.login }}
+          if echo "$CODEOWNERS" | grep -q "$COMMENT_AUTHOR"; then
+            echo "::set-output name=isCodeOwner::true"
+          else
+            echo "::set-output name=isCodeOwner::false"
+          fi
   build-release:
     runs-on: windows-latest
-    needs: []
     steps:
       - uses: actions/checkout@v4
 
@@ -21,9 +38,40 @@ jobs:
 
       - name: dotnet build
         run: dotnet build -c release
+
+      - name: dotnet publish
+        if: steps.isCodeOwner.outputs.isCodeOwner == 'true'
+        run: dotnet publish -o pub -c release -p:PublishSingleFile=true -p:Version=${{ env.APP_VERSION }}
+
+      - name: Upload binaries
+        if: steps.isCodeOwner.outputs.isCodeOwner == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: binaries
+          path: pub/FileSorter.*
+  choco-pack:
+    needs: build-release
+    if: steps.isCodeOwner.outputs.isCodeOwner == 'true'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download a single artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: binaries
+          path: bin
+
+      - name: Package
+        run: cd choco && choco pack --version ${{ env.APP_VERSION }}
+
+      - name: Upload nupkg
+        uses: actions/upload-artifact@v4
+        with:
+          name: nupkg
+          path: choco/*.nupkg
   build-debug:
     runs-on: windows-latest
-    needs: []
     steps:
       - uses: actions/checkout@v4
 
