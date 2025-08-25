@@ -13,6 +13,8 @@ jobs:
   isCodeOwner:
     if: github.event.issue.pull_request && contains(github.event.comment.body, '/test-pack')
     runs-on: ubuntu-latest
+    outputs:
+      isCodeOwner: ${{ steps.check.outputs.isCodeOwner }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -20,13 +22,16 @@ jobs:
         id: check
         run: |
           CODEOWNERS=$(cat .github/CODEOWNERS)
-          COMMENT_AUTHOR=${{ github.event.comment.user.login }}
+          COMMENT_AUTHOR="${{ github.event.comment.user.login }}"
           if echo "$CODEOWNERS" | grep -q "$COMMENT_AUTHOR"; then
-            echo "::set-output name=isCodeOwner::true"
+            echo "isCodeOwner=true" >> $GITHUB_OUTPUT
           else
-            echo "::set-output name=isCodeOwner::false"
+            echo "isCodeOwner=false" >> $GITHUB_OUTPUT
           fi
+
   build-release:
+    if: needs.isCodeOwner.outputs.isCodeOwner == 'true'
+    needs: isCodeOwner
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -40,18 +45,17 @@ jobs:
         run: dotnet build -c release
 
       - name: dotnet publish
-        if: steps.isCodeOwner.outputs.isCodeOwner == 'true'
         run: dotnet publish -o pub -c release -p:PublishSingleFile=true -p:Version=${{ env.APP_VERSION }}
 
       - name: Upload binaries
-        if: steps.isCodeOwner.outputs.isCodeOwner == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: binaries
           path: pub/FileSorter.*
+
   choco-pack:
+    if: needs.isCodeOwner.outputs.isCodeOwner == 'true'
     needs: build-release
-    if: steps.isCodeOwner.outputs.isCodeOwner == 'true'
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -70,6 +74,7 @@ jobs:
         with:
           name: nupkg
           path: choco/*.nupkg
+
   build-debug:
     runs-on: windows-latest
     steps:
