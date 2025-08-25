@@ -26,6 +26,6 @@
 
 	<ItemGroup>
 		<PackageReference Include="PowerArgs" Version="4.0.3" />
-		<PackageReference Include="WindowsAPICodePack" Version="8.0.4" />
+		<PackageReference Include="WindowsAPICodePack" Version="8.0.9" />
 	</ItemGroup>
 </Project>
