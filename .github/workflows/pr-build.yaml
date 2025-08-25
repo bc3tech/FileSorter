@@ -10,14 +10,36 @@ on:
     types: [created]
 
 jobs:
+  getPrRef:
+    runs-on: ubuntu-latest
+    outputs:
+      pr_ref: ${{ steps.pr_info.outputs.ref }}
+    steps:
+      - name: Get PR info
+        id: pr_info
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            PR_NUMBER="${{ github.event.pull_request.number }}"
+          else
+            PR_NUMBER="${{ github.event.issue.number }}"
+          fi
+          PR_API="https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER"
+          PR_JSON=$(curl -s -H "Authorization: token $GH_TOKEN" $PR_API)
+          echo "ref=$(echo $PR_JSON | jq -r .head.ref)" >> $GITHUB_OUTPUT
+
   isCodeOwner:
     if: github.event.issue.pull_request && contains(github.event.comment.body, '/test-pack')
+    needs: getPrRef
     runs-on: ubuntu-latest
     outputs:
       isCodeOwner: ${{ steps.check.outputs.isCodeOwner }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.getPrRef.outputs.pr_ref }}
       - name: Check if comment author is a code owner
         id: check
         run: |
@@ -31,10 +53,16 @@ jobs:
 
   build-release:
     if: needs.isCodeOwner.outputs.isCodeOwner == 'true'
-    needs: isCodeOwner
+    needs: [getPrRef,isCodeOwner]
     runs-on: windows-latest
+    env:
+      PR_REF: ${{ needs.getPrRef.outputs.pr_ref }}
+      APP_VERSION: "0.2.${{ github.run_number }}"
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.PR_REF }}
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -55,10 +83,16 @@ jobs:
 
   choco-pack:
     if: needs.isCodeOwner.outputs.isCodeOwner == 'true'
-    needs: build-release
+    needs: [getPrRef,isCodeOwner,build-release]
     runs-on: windows-latest
+    env:
+      PR_REF: ${{ needs.getPrRef.outputs.pr_ref }}
+      APP_VERSION: "0.2.${{ github.run_number }}"
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.PR_REF }}
 
       - name: Download a single artifact
         uses: actions/download-artifact@v4
@@ -76,9 +110,15 @@ jobs:
           path: choco/*.nupkg
 
   build-debug:
+    needs: [getPrRef]
     runs-on: windows-latest
+    env:
+      PR_REF: ${{ needs.getPrRef.outputs.pr_ref }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.PR_REF }}
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
