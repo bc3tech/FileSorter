@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-using ExifLib;
+using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
 
 using PowerArgs;
 
