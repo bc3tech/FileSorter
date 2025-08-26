@@ -10,6 +10,10 @@ on:
 env:
   APP_VERSION: "0.2.${{ github.run_number }}"
 
+permissions:
+  contents: write
+  id-token: write
+
 jobs:
   build:
     runs-on: windows-latest
@@ -101,9 +105,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Update Packages
-      uses: michidk/winget-updater@v1
+      uses: vedantmgoyal9/winget-releaser@v2
       with:
-        komac-token: ${{ secrets.GITHUB_TOKEN }}
         identifier: BC3Tech.FileSorter
-        repo: bc3tech/filesorter
-        url: https://github.com/bc3tech/filesorter/releases/download/{VERSION}/FileSorter_{VERSION}.zip
+        release-tag: ${{ env.APP_VERSION }}
+        token: ${{ secrets.GITHUB_TOKEN }}
